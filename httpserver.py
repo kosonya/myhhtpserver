@@ -7,11 +7,22 @@ import os
 import threading
 import hostingcocosting
 
+import wsgiref.handlers #import format_date_time
+import datetime #import datetime
+import time #import mktime
+
+
 class HTTPRequestHandler(BaseHTTPRequestHandler):
 
 	def address_string(self): #Fix for the slow response
-		#host, _ = self.client_address[:2]
-		return "maxikov.com"
+		host, _ = self.client_address[:2]
+		return host
+
+	def get_current_timestamp(self):
+		now = datetime.datetime.now()
+		stamp = time.mktime(now.timetuple())
+		res = wsgiref.handlers.format_date_time(stamp)
+		return res
 
 	def return_file(self, file_name, content_type):
 		filespath = os.path.dirname(os.path.realpath(__file__))
@@ -21,6 +32,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 		f.close()
 		self.send_response(200)
 		self.send_header('Content-Type', content_type)
+		self.send_header('Content-Length', os.path.getsize(filename))
+		self.send_header('Date', self.get_current_timestamp())
 		self.end_headers()
 		self.wfile.write(content)
 		self.wfile.close()
