@@ -140,6 +140,10 @@ class HostingCocosting(object):
 				self.handler.send_response(416) # Requested Range Not Satisfiable
 				self.handler.wfile.close()
 				return True
+			if start < stop:
+				self.handler.send_response(416) # Requested Range Not Satisfiable
+				self.handler.wfile.close()
+				return True
 			return self.serve_part_of_file(file_path, start, stop)
 
 
