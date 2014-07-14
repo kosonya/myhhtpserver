@@ -26,14 +26,19 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 		self.wfile.close()
 
 	def do_GET(self):
-		if None != re.search(".*my.css.*", self.path):
-			self.return_file("my.css", "text/css")
-		elif None != re.search(".*z0r-de_22.swf.*", self.path):
-			self.return_file("z0r-de_22.swf", "application/x-shockwave-flash")
-		elif None != re.search("hosting-cocosting", self.path):
+		if None != re.search("hosting-cocosting", self.path):
 			hosting_cocosting = hostingcocosting.HostingCocosting(self)
 			if not hosting_cocosting.serve():
-				self.return_file("index.html", "text/html")
+				if None != re.search("hosting-cocosting/my.css", self.path):
+					self.return_file("my.css", "text/css")
+				elif None != re.search("hosting-cocosting/z0r-de_22.swf", self.path):
+					self.return_file("z0r-de_22.swf", "application/x-shockwave-flash")
+				else:
+					self.return_file("index.html", "text/html")
+		elif None != re.search("my.css", self.path):
+			self.return_file("my.css", "text/css")
+		elif None != re.search("z0r-de_22.swf", self.path):
+			self.return_file("z0r-de_22.swf", "application/x-shockwave-flash")
 		else:
 			self.return_file("index.html", "text/html")
 
