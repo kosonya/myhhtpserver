@@ -11,6 +11,7 @@ class HostingCocosting(object):
 	def __init__(self, http_request_handler):
 		self.handler = http_request_handler
 		self.share_path = "/mnt/data/Public"
+		self.file_read_chunk_size = 2**8
 
 	def get_files_list(self):
 		return [ f for f in os.listdir(self.share_path) if os.path.isfile(os.path.join(self.share_path,f)) and not os.path.islink(os.path.join(self.share_path,f)) and f[0] != "."]
@@ -47,6 +48,7 @@ class HostingCocosting(object):
 
 
 	def serve_file(self, filename):
+		file_range = self.handler.headers.getheader("Range") #TODO: range: bytes=22164992- <type 'str'>
 		file_path = os.path.join(self.share_path, filename)
 		if not (os.path.exists(file_path) and os.path.isfile(file_path) and not os.path.islink(file_path)):
 			return False
@@ -58,11 +60,15 @@ class HostingCocosting(object):
 		content_type = mimetypes.guess_type(filename)[0]
 		if content_type:
 			self.handler.send_header('Content-Type', content_type)
+		self.handler.send_header('Content-Length', os.path.getsize(file_path))
 		self.handler.end_headers()
 		f = open(file_path, "rb")
-		content = "".join(f.readlines())
+		while True:
+			data = f.read(self.file_read_chunk_size)
+			if not data:
+				break
+			self.handler.wfile.write(data)
 		f.close()
-		self.handler.wfile.write(content)
 		self.handler.wfile.close()
 		return True
 
