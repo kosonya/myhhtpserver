@@ -11,7 +11,7 @@ class HostingCocosting(object):
 	def __init__(self, http_request_handler):
 		self.handler = http_request_handler
 		self.share_path = "/mnt/data/Public"
-		self.file_read_chunk_size = 2**30
+		self.file_read_chunk_size = 2**24
 
 	def get_files_list(self):
 		return [ f for f in os.listdir(self.share_path) if os.path.isfile(os.path.join(self.share_path,f)) and not os.path.islink(os.path.join(self.share_path,f)) and f[0] != "."]
